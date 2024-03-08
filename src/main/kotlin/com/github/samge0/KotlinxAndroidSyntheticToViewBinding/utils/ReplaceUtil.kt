@@ -62,11 +62,7 @@ object ReplaceUtil {
                 null
         )
 
-        if (!userInput.isNullOrEmpty()) {
-            CacheUtil.putCacheReplacePrefix(userInput)
-        } else {
-            // 用户取消了操作或输入为空
-        }
+        CacheUtil.putCacheReplacePrefix(userInput?:"")
     }
 
 
@@ -83,9 +79,7 @@ object ReplaceUtil {
                 null
         )
 
-        if (!userInput.isNullOrEmpty()) {
-            CacheUtil.putCachePackageName(userInput)
-        }
+        CacheUtil.putCachePackageName(userInput?:"")
     }
 
 
