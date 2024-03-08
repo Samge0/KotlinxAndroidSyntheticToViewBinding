@@ -1,0 +1,78 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.github.samge0.KotlinxAndroidSyntheticToViewBinding</id>
+    <name>KotlinxAndroidSyntheticToViewBinding</name>
+    <vendor>samge0</vendor>
+
+    <!-- Need Config With gradle.properties -> platformPlugins -> rebuild gradle.
+    Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html#modules-specific-to-functionality
+    -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+
+    <actions>
+
+        <!-- 替换 setContentView 到binding格式 -->
+        <action
+            id="ReplaceContentView"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceContentView"
+            text="Replace ContentView"
+            description="Replace setContentView to binding format"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt a"/>
+        </action>
+
+        <!-- 替换 binding 并自动转换下划线为驼峰，例如 aa_bb_cc => binding.aaBbCc -->
+        <action
+            id="ReplaceBinding"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceBinding"
+            text="Replace Binding"
+            description="Replace binding and automatically convert underscores to humps, for example: aa_bb_cc => binding.aaBbCc"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 1"/>
+        </action>
+
+        <!-- 替换 include 并自动转换下划线为驼峰，例如 aa_bb_cc => binding.include.aaBbCc -->
+        <action
+            id="ReplaceInclude"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceInclude"
+            text="Replace Include"
+            description="Replace include and automatically convert underscores to humps, for example: aa_bb_cc => binding.include.aaBbCc"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 2"/>
+        </action>
+
+        <!-- 替换 自定义前缀 并自动转换下划线为驼峰，例如 aa_bb_cc => {prefix}aaBbCc -->
+        <action
+            id="ReplaceCustomPrefix"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceCustomPrefix"
+            text="Replace Custom Prefix"
+            description="Replace custom prefixes and automatically convert underscores to humps, for example: aa_bb_cc => {prefix}aaBbCc"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 3"/>
+        </action>
+
+        <!-- 配置 自定义前缀 -->
+        <action
+            id="SetCustomPrefix"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionSetCustomPrefix"
+            text="Set Custom Prefix"
+            description="Configure a custom prefix"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 4"/>
+        </action>
+
+        <!-- 配置 自定义包名 -->
+        <action
+            id="SetCustomPackageName"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionSetCustomPackageName"
+            text="Set Custom PackageName"
+            description="Configure a custom PackageName"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 5"/>
+        </action>
+
+    </actions>
+</idea-plugin>
