@@ -9,13 +9,71 @@ import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import java.awt.datatransfer.StringSelection
+import java.util.*
 
 
 object ReplaceUtil {
 
 
-    // 替换ContentView
-    fun parseActionReplaceContentView(event: AnActionEvent) {
+    // 替换 FragmentContentView
+    fun parseActionReplaceFragmentContentView(event: AnActionEvent) {
+        val baseFragmentPath = CacheUtil.getCacheBaseFragmentPath()
+        if (baseFragmentPath.isEmpty()) return
+
+        val baseFragmentName = baseFragmentPath.split(".").last()
+
+        val editor: Editor? = event.getData(CommonDataKeys.EDITOR)
+        val project: Project? = event.project
+        if (editor != null && project != null) {
+            val document = editor.document
+            val selectionModel = editor.selectionModel
+            val selectedText = selectionModel.selectedText
+            selectedText?.let {
+                val layoutName = extractLayoutName(it) ?: it
+                val layoutNameFull = CamelCaseUtil.camelCaseWithPreSuffix(layoutName, camelCaseType = CamelCaseUtil.CamelCaseEnum.PascalCase, suffix = "Binding")
+
+                // 需要复制到剪贴板的文本
+                val packageName = CacheUtil.getCachePackageName()
+                val newBaseFragmentInfo = """$baseFragmentName<$layoutNameFull>(
+    inflate = $layoutNameFull::inflate
+)"""
+                val textToCopy = if (packageName.isEmpty()) {
+                    """import ${CacheUtil.getCachePackageName()}.databinding.$layoutNameFull
+$newBaseFragmentInfo"""
+                } else {
+                    """import $baseFragmentPath
+import ${CacheUtil.getCachePackageName()}.databinding.$layoutNameFull
+$newBaseFragmentInfo"""
+                }
+                CopyPasteManager.getInstance().setContents(StringSelection(textToCopy))
+
+                // 判断是否自动替换OldBaseFragmentName
+                val oldBaseFragmentName = CacheUtil.getCacheOldBaseFragmentName()
+                if (oldBaseFragmentName.isNotEmpty()) {
+                    WriteCommandAction.runWriteCommandAction(project) {
+                        var text = document.text
+                        val oldBaseFragmentInfo = if ("$oldBaseFragmentName()" in text) {
+                            "$oldBaseFragmentName()"
+                        } else {
+                            oldBaseFragmentName
+                        }
+                        text = text.replace(oldBaseFragmentInfo, newBaseFragmentInfo)
+                        document.setText(text)
+                    }
+                }
+
+                // 置空选中内容
+                WriteCommandAction.runWriteCommandAction(project) {
+                    document.replaceString(selectionModel.selectionStart, selectionModel.selectionEnd, "")
+                }
+                selectionModel.removeSelection()
+            }
+        }
+    }
+
+
+    // 替换 ActivityContentView
+    fun parseActionReplaceActivityContentView(event: AnActionEvent) {
         val editor: Editor? = event.getData(CommonDataKeys.EDITOR)
         val project: Project? = event.project
         if (editor != null && project != null) {
@@ -83,6 +141,40 @@ object ReplaceUtil {
     }
 
 
+    // 设置自定义BaseFragment路径
+    fun parseActionSetCustomBaseFragmentPath(event: AnActionEvent) {
+
+        // 弹出输入框
+        val userInput = Messages.showInputDialog(
+                event.project,
+                "Please enter a custom BaseFragment path:",
+                "Set Custom BaseFragment Path",
+                Messages.getQuestionIcon(),
+                CacheUtil.getCacheBaseFragmentPath(),
+                null
+        )
+
+        CacheUtil.putCacheBaseFragmentPath(userInput?:"")
+    }
+
+
+    // 设置旧的BaseFragment名称（用于自动替换）
+    fun parseActionSetOldBaseFragmentName(event: AnActionEvent) {
+
+        // 弹出输入框
+        val userInput = Messages.showInputDialog(
+                event.project,
+                "Please enter oldBaseFragmentName:",
+                "Set OldBaseFragmentName",
+                Messages.getQuestionIcon(),
+                CacheUtil.getCacheOldBaseFragmentName(),
+                null
+        )
+
+        CacheUtil.putCacheOldBaseFragmentName(userInput?:"")
+    }
+
+
     // 替换所有include的action - 如有有选中的，则只替换选中的
     fun parseActionReplaceInclude(event: AnActionEvent) {
         val project: Project? = event.project
@@ -99,7 +191,7 @@ object ReplaceUtil {
             replaceDocument(project, document, idListToMap(prefix, idList))
         } else {
             // 替换当个选中的
-            val newText = CamelCaseUtil.camelCaseWithPreSuffix(selectedText, prefix=prefix)
+            val newText = CamelCaseUtil.camelCaseWithPreSuffix(convertStartsWithMLowercaseVariableName(selectedText), prefix=prefix)
             WriteCommandAction.runWriteCommandAction(project) {
                 document.replaceString(selectionModel.selectionStart, selectionModel.selectionEnd, newText)
             }
@@ -117,7 +209,7 @@ object ReplaceUtil {
             val selectionModel = editor.selectionModel
             val selectedText = selectionModel.selectedText
             selectedText?.let {
-                val newText = CamelCaseUtil.camelCaseWithPreSuffix(it, prefix=prefix)
+                val newText = CamelCaseUtil.camelCaseWithPreSuffix(convertStartsWithMLowercaseVariableName(it), prefix=prefix)
                 WriteCommandAction.runWriteCommandAction(project) {
                     document.replaceString(selectionModel.selectionStart, selectionModel.selectionEnd, newText)
                 }
@@ -156,5 +248,25 @@ object ReplaceUtil {
         return idsList.associateWith { idStr ->
             CamelCaseUtil.camelCaseWithPreSuffix(idStr, prefix=prefix)
         }
+    }
+
+    // 判断是否 变量名称以m小写字母开头，后跟大写字母 的类型
+    private fun isVariableNameStartsWithMLowercaseFollowedByUppercase(variableName: String): Boolean {
+        // 定义正则表达式
+        val regex = "^m[A-Z]".toRegex()
+
+        // 返回变量名是否匹配正则表达式的结果
+        return regex.containsMatchIn(variableName)
+    }
+
+    // 如果是 变量名称以m小写字母开头，后跟大写字母 的类型，则移除m字母，并将首字母小写
+    private fun convertStartsWithMLowercaseVariableName(variableName: String): String {
+        // 检查变量名是否符合条件
+        if (isVariableNameStartsWithMLowercaseFollowedByUppercase(variableName)) {
+            // 移除左侧的'm'并将首字母转换为小写
+            return variableName.removePrefix("m").replaceFirstChar { it.lowercase(Locale.getDefault()) }
+        }
+        // 如果不符合条件，返回原始变量名
+        return variableName
     }
 }

@@ -16,6 +16,8 @@ object CacheUtil {
     enum class Type {
         ReplacePrefix,         // id替换viewBinding的自定义前缀
         PackageName,           // 包名
+        BaseFragmentPath,      // BaseFragment 路径，例如：com.xxx.xxx.ui.fragment.BaseFragment
+        OldBaseFragmentName,   // 旧的BaseFragment名称（用于自动替换）
     }
 
     // ======================================= ReplacePrefix start========================================
@@ -27,6 +29,16 @@ object CacheUtil {
     fun putCachePackageName(v: String) = put(Type.PackageName.name, v)
     fun getCachePackageName(v: String = "") = get(Type.PackageName.name, v)
     // ======================================= PackageName end==========================================
+
+    // ======================================= BaseFragmentPath start========================================
+    fun putCacheBaseFragmentPath(v: String) = put(Type.BaseFragmentPath.name, v)
+    fun getCacheBaseFragmentPath(v: String = "") = get(Type.BaseFragmentPath.name, v)
+    // ======================================= BaseFragmentPath end==========================================
+
+    // ======================================= OldBaseFragmentName start========================================
+    fun putCacheOldBaseFragmentName(v: String) = put(Type.OldBaseFragmentName.name, v)
+    fun getCacheOldBaseFragmentName(v: String = "") = get(Type.OldBaseFragmentName.name, v)
+    // ======================================= OldBaseFragmentName end==========================================
 
     /**
      * 存储

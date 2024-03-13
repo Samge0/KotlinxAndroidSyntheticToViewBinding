@@ -14,12 +14,22 @@
 
     <actions>
 
-        <!-- 替换 setContentView 到binding格式 -->
+        <!-- 替换 Fragment view 到binding格式 -->
         <action
-            id="ReplaceContentView"
-            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceContentView"
+            id="ReplaceFragmentContentView"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceFragmentContentView"
             text="Replace ContentView"
-            description="Replace setContentView to binding format"
+            description="Replace fragment view to binding format"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="shift alt a"/>
+        </action>
+
+        <!-- 替换 Activity setContentView 到binding格式 -->
+        <action
+            id="ReplaceActivityContentView"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionReplaceActivityContentView"
+            text="Replace ContentView"
+            description="Replace activity setContentView to binding format"
         >
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt a"/>
         </action>
@@ -72,6 +82,26 @@
             description="Configure a custom PackageName"
         >
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 5"/>
+        </action>
+
+        <!-- 配置 自定义Fragment路径 -->
+        <action
+            id="SetCustomBaseFragmentPath"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionSetCustomBaseFragmentPath"
+            text="Set Custom BaseFragmentPath"
+            description="Configure a custom BaseFragmentPath. e.g. com.xxx.xxx.ui.fragment.BaseFragment"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 6"/>
+        </action>
+
+        <!-- 配置 旧的BaseFragment名称（用于自动替换） -->
+        <action
+            id="SetOldBaseFragmentName"
+            class="com.github.samge0.KotlinxAndroidSyntheticToViewBinding.actions.ActionSetOldBaseFragmentName"
+            text="Set OldBaseFragmentName"
+            description="Configure a OldBaseFragmentName. e.g. BaseFragment"
+        >
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt 7"/>
         </action>
 
     </actions>

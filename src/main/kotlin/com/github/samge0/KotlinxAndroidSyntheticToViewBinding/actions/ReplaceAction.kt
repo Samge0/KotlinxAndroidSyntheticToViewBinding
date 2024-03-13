@@ -6,10 +6,18 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 
 
-// 替换ContentView
-class ActionReplaceContentView : AnAction() {
+// 替换 FragmentContentView
+class ActionReplaceFragmentContentView : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
-        ReplaceUtil.parseActionReplaceContentView(event)
+        ReplaceUtil.parseActionReplaceFragmentContentView(event)
+    }
+}
+
+
+// 替换 ActivityContentView
+class ActionReplaceActivityContentView : AnAction() {
+    override fun actionPerformed(event: AnActionEvent) {
+        ReplaceUtil.parseActionReplaceActivityContentView(event)
     }
 }
 
@@ -50,5 +58,21 @@ class ActionSetCustomPrefix : AnAction() {
 class ActionSetCustomPackageName : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         ReplaceUtil.parseActionSetCustomPackageName(event)
+    }
+}
+
+
+// 设置自定义BaseFragment路径
+class ActionSetCustomBaseFragmentPath : AnAction() {
+    override fun actionPerformed(event: AnActionEvent) {
+        ReplaceUtil.parseActionSetCustomBaseFragmentPath(event)
+    }
+}
+
+
+// 设置旧的BaseFragment名称（用于自动替换）
+class ActionSetOldBaseFragmentName : AnAction() {
+    override fun actionPerformed(event: AnActionEvent) {
+        ReplaceUtil.parseActionSetOldBaseFragmentName(event)
     }
 }
